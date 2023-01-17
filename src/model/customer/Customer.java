@@ -3,7 +3,6 @@ package model.customer;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Tigist
  */
 public class Customer {

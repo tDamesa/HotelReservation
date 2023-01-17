@@ -12,12 +12,12 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
- *
  * @author Tigist
  */
 public class MainMenu {
     static HotelResource hotelResource = HotelResource.getInstance();
     final static Scanner scanner = new Scanner(System.in);
+
     public static void mainMenu() {
         try {
             while (true) {
@@ -62,7 +62,7 @@ public class MainMenu {
             return customerEmail;
         } catch (IllegalArgumentException e) {
             System.out.println("Please enter a valid email address");
-           return createAccount();
+            return createAccount();
         }
     }
 
@@ -80,9 +80,9 @@ public class MainMenu {
     private static void findAndReserveARoom() {
         try {
             System.out.println("Enter CheckIn Date mm/dd/yyyy example 02/02/2023");
-            LocalDate checkIn = dateInput(scanner);
+            LocalDate checkIn = dateInput();
             System.out.println("Enter CheckOut Date mm/dd/yyyy example 02/02/2023");
-            LocalDate checkOut = dateInput(scanner);
+            LocalDate checkOut = dateInput();
 
             if (checkOut.isAfter(checkIn)) {
                 LocalDate checkInDate = checkIn;
@@ -90,20 +90,21 @@ public class MainMenu {
                 Collection<IRoom> availableRooms = hotelResource.findRooms(checkIn, checkOut);
                 if (availableRooms.isEmpty()) {
                     System.out.println("There are no rooms available on the entered dates. Would you like to see alternative rooms y/n?");
-                    String getAlternativeRooms = scanner.nextLine().toLowerCase();
                     while (true) {
-                        if (!getAlternativeRooms.equals("y") && !getAlternativeRooms.equals("n")) {
+                        String getAlternativeRooms = scanner.nextLine();
+                        if (!getAlternativeRooms.equalsIgnoreCase("y") && !getAlternativeRooms.equalsIgnoreCase("n")) {
                             System.out.println("Please enter Y (yes) or N (no)");
                             continue;
                         }
-                        if (getAlternativeRooms.equals("n")) {
+                        if (getAlternativeRooms.equalsIgnoreCase("n")) {
                             return;
                         }
                         System.out.println("Please enter the number of days to add to checkIn and Checkout dates");
                         int daysToAdd = scanner.nextInt();
                         checkInDate = checkIn.plusDays(daysToAdd);
                         checkOutDate = checkOut.plusDays(daysToAdd);
-                        availableRooms = hotelResource.findRooms(checkIn, checkOut);
+                        availableRooms = hotelResource.findRooms(checkInDate, checkOutDate);
+                        scanner.nextLine();
                         break;
                     }
                 }
@@ -112,16 +113,23 @@ public class MainMenu {
                     return;
                 }
                 System.out.println("Would you like to book a room? y/n");
-                String bookARoom = scanner.nextLine().toLowerCase();
-                if (bookARoom.equals("y")) {
-                    bookARoom(checkInDate, checkOutDate);
-                } else if (bookARoom.equals("n")) {
-                    System.out.println("Returning to menu...");
-                } else {
-                    System.out.println("Please enter Y (yes) or N (no)");
+                while (true) {
+                    String bookARoom = scanner.nextLine();
+                    if (!bookARoom.equalsIgnoreCase("y") && !bookARoom.equalsIgnoreCase("n")) {
+                        System.out.println("Please enter Y (yes) or N (no) t");
+                        continue;
+                    }
+                    if (bookARoom.equalsIgnoreCase("y")) {
+                        bookARoom(checkInDate, checkOutDate);
+                        break;
+                    } else if (bookARoom.equalsIgnoreCase("n")) {
+                        System.out.println("Returning to menu...");
+                        return;
+                    }
                 }
             } else {
                 System.out.println("CheckOut date should be after CheckIn");
+                findAndReserveARoom();
             }
         } catch (InputMismatchException e) {
             System.out.println("Please add an integer for days to add");
@@ -131,8 +139,8 @@ public class MainMenu {
     }
 
     private static void bookARoom(LocalDate checkIn, LocalDate checkOut) {
-            String email = getOrCreateAccount();
-            reserveARoom(checkIn, checkOut, email);
+        String email = getOrCreateAccount();
+        reserveARoom(checkIn, checkOut, email);
     }
 
     private static void reserveARoom(LocalDate checkIn, LocalDate checkOut, String email) {
@@ -149,22 +157,29 @@ public class MainMenu {
     private static String getOrCreateAccount() {
         String email = "";
         System.out.println("Do you have an account with us? y/n");
-        String haveAccount = scanner.nextLine().toLowerCase();
-        if (haveAccount.equals("y")) {
-            System.out.println("Enter email format: name@domain.com");
-            email = scanner.nextLine();
-            Customer customer = AdminResource.getInstance().getCustomer(email);
-            if (customer == null) {
-                System.out.println("Sorry, we couldn't find your account. Please create one.");
+        while (true) {
+            String haveAccount = scanner.nextLine();
+            if (!haveAccount.equalsIgnoreCase("y") && !haveAccount.equalsIgnoreCase("n")) {
+                System.out.println("Please enter Y (yes) or N (no)");
+                continue;
+            }
+            if (haveAccount.equalsIgnoreCase("y")) {
+                System.out.println("Enter email format: name@domain.com");
+                email = scanner.nextLine();
+                Customer customer = AdminResource.getInstance().getCustomer(email);
+                if (customer == null) {
+                    System.out.println("Sorry, we couldn't find your account. Please create one.");
+                    email = createAccount();
+                }
+            } else if (haveAccount.equalsIgnoreCase("n")) {
                 email = createAccount();
             }
-        } else {
-            email = createAccount();
+            break;
         }
         return email;
     }
 
-    private static LocalDate dateInput(Scanner scanner) {
+    private static LocalDate dateInput() {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             return LocalDate.parse(scanner.nextLine(), formatter);

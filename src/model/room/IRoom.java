@@ -1,6 +1,6 @@
 package model.room;
+
 /**
- *
  * @author Tigist
  */
 public interface IRoom {

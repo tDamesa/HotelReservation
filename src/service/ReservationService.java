@@ -6,12 +6,12 @@ import model.room.IRoom;
 import repository.Repository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author Tigist
  */
 public class ReservationService {
@@ -28,28 +28,27 @@ public class ReservationService {
     }
 
     public void addRoom(IRoom room) {
-        if (Repository.rooms.stream().anyMatch(r -> r.getRoomNumber() == room.getRoomNumber())) {
+        if (Repository.rooms.containsKey(room.getRoomNumber())) {
             System.out.println("Room already exist.");
             return;
         }
-        Repository.rooms.add(room);
+        Repository.rooms.put(room.getRoomNumber(), room);
+        System.out.println(room);
     }
 
-    public IRoom getARoom(String roomId) {
-            for (IRoom obj : Repository.rooms) {
-                if (obj.getRoomNumber().equals(roomId)) {
-                    return obj;
-                }
-            }
-        return null;
+    public IRoom getARoom(String roomNumber) {
+        return Repository.rooms.get(roomNumber);
     }
 
     public Collection<IRoom> getAllRooms() {
-        return Repository.rooms;
+        return new ArrayList<IRoom>(Repository.rooms.values());
     }
 
     public Reservation reserveARoom(Customer customer, IRoom room, LocalDate checkInDate, LocalDate checkOutDate) {
-        //check the room is reserved or not
+        if (getUnavailableRooms(checkInDate, checkOutDate).stream().anyMatch(r -> r.getRoomNumber().equals(room.getRoomNumber()))) {
+            System.out.println("Room unavailable on the entered dates.");
+            return null;
+        }
         Reservation newReservation = new Reservation(customer, room, checkInDate, checkOutDate);
         System.out.println(newReservation);
         Repository.reservations.add(newReservation);
@@ -61,9 +60,9 @@ public class ReservationService {
     }
 
     List<IRoom> searchForAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate) {
-        List<IRoom> unavailableRooms = Repository.reservations.stream().filter(reservation -> checkOutDate.isAfter(reservation.getCheckingDate()) && checkInDate.isBefore(reservation.getCheckoutDate())).map(Reservation::getRoom).collect(Collectors.toList());
+        Collection<IRoom> unavailableRooms = getUnavailableRooms(checkInDate, checkOutDate);
 
-        List<IRoom> availableRooms = Repository.rooms.stream().filter(room -> unavailableRooms.stream().noneMatch(unavailableRoom -> unavailableRoom.equals(room))).collect(Collectors.toList());
+        List<IRoom> availableRooms = Repository.rooms.values().stream().filter(room -> unavailableRooms.stream().noneMatch(unavailableRoom -> unavailableRoom.equals(room))).collect(Collectors.toList());
         return availableRooms;
     }
 
@@ -76,5 +75,10 @@ public class ReservationService {
             System.out.println("No reservation found.");
         } else
             Repository.reservations.stream().forEach(System.out::println);
+    }
+
+    public Collection<IRoom> getUnavailableRooms(LocalDate checkInDate, LocalDate checkOutDate) {
+        return Repository.reservations.stream().filter(reservation -> checkOutDate.isAfter(reservation.getCheckingDate()) && checkInDate.isBefore(reservation.getCheckoutDate())).map(Reservation::getRoom).collect(Collectors.toList());
+
     }
 }

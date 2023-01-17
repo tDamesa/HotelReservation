@@ -6,8 +6,8 @@ import model.room.IRoom;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+
 /**
- *
  * @author Tigist
  */
 public class Reservation {
@@ -62,7 +62,7 @@ public class Reservation {
 
     @Override
     public String toString() {
-        return  "Reservation Success \n" + getCustomer().getFirstName() + " " + getCustomer().getLastName() +
+        return "Reservation Success \n" + getCustomer().getFirstName() + " " + getCustomer().getLastName() +
                 "\nRoom: " + getRoom().getRoomNumber() + " - " + getRoom().getRoomType() + " bed\n" + "Price: " + getRoom().getRoomPrice() + " price per night" +
                 "\nCheckin Date: " + formatDate(getCheckingDate()) + "\n" + "Checkout Date: " + formatDate(getCheckoutDate());
     }

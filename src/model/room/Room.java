@@ -1,8 +1,8 @@
 package model.room;
 
 import java.util.Objects;
+
 /**
- *
  * @author Tigist
  */
 public class Room implements IRoom {
@@ -45,8 +45,8 @@ public class Room implements IRoom {
     }
 
     @Override
-    public boolean equals(Object o){
-        if ( this == o) return  true;
+    public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || o.getClass() != this.getClass()) return false;
         return ((Room) o).roomNumber.equals(roomNumber);
     }

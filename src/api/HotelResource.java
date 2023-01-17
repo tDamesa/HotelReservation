@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 /**
- *
  * @author Tigist
  */
 public class HotelResource {

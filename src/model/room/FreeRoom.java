@@ -1,7 +1,6 @@
 package model.room;
 
 /**
- *
  * @author Tigist
  */
 public class FreeRoom extends Room {

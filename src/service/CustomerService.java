@@ -3,11 +3,10 @@ package service;
 import model.customer.Customer;
 import repository.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
- *
  * @author Tigist
  */
 public class CustomerService {
@@ -24,8 +23,8 @@ public class CustomerService {
 
     public Customer addCustomer(String email, String firstName, String lastName) {
         Customer customer = new Customer(firstName, lastName, email);
-        if (!doesEmailExist(Repository.customers, email)) {
-            Repository.customers.add(customer);
+        if (!Repository.customers.containsKey(email)) {
+            Repository.customers.put(email, customer);
         } else {
             System.out.println("Email already exist.");
         }
@@ -34,17 +33,10 @@ public class CustomerService {
     }
 
     public Customer getCustomer(String customerEmail) {
-        for (Customer obj : Repository.customers) {
-            if (obj.getEmail().equals(customerEmail)) return obj;
-        }
-        return null;
+        return Repository.customers.get(customerEmail);
     }
 
     public Collection<Customer> getAllCustomers() {
-        return Repository.customers;
-    }
-
-    private boolean doesEmailExist(List<Customer> list, String email) {
-        return list.stream().anyMatch(obj -> obj.getEmail().equals(email));
+        return new ArrayList<Customer>(Repository.customers.values());
     }
 }

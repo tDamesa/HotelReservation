@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- *
  * @author Tigist
  */
 public class AdminMenu {
@@ -56,17 +55,18 @@ public class AdminMenu {
         try {
             System.out.println("Enter room number");
             String roomNumber = addRoomNumber();
+            scanner.nextLine();
             System.out.println("Enter price per night");
-            double roomPrice = addRoomPrice(scanner);
+            double roomPrice = addRoomPrice();
+            scanner.nextLine();
             System.out.println("Enter room type: 1 for single bed, 2 for double bed");
-            RoomType roomType = addRoomType(scanner);
+            RoomType roomType = addRoomType();
 
             IRoom room = new Room(roomNumber, roomPrice, roomType);
             adminResource.addRoom(List.of(room));
-            System.out.println(room);
 
             System.out.println("Would you like to add another room y/n");
-            addAnotherRoom(scanner);
+            addAnotherRoom();
         } catch (NullPointerException e) {
             System.out.println(e.fillInStackTrace());
         }
@@ -74,10 +74,16 @@ public class AdminMenu {
     }
 
     private static String addRoomNumber() {
-        return scanner.nextLine();
+        try {
+            return String.valueOf(scanner.nextInt());
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input. Room number must be a number.");
+            scanner.nextLine();
+            return addRoomNumber();
+        }
     }
 
-    private static void addAnotherRoom(Scanner scanner) {
+    private static void addAnotherRoom() {
         try {
             String addAnotherRoom = scanner.nextLine();
             switch (addAnotherRoom.toLowerCase()) {
@@ -88,16 +94,16 @@ public class AdminMenu {
                     break;
                 default:
                     System.out.println("Please enter Y (Yes) or N (No)");
-                    addAnotherRoom(scanner);
+                    addAnotherRoom();
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            addAnotherRoom(scanner);
+            addAnotherRoom();
         }
     }
 
-    private static RoomType addRoomType(Scanner scanner) {
+    private static RoomType addRoomType() {
         try {
             String roomType = scanner.nextLine();
             switch (roomType) {
@@ -106,22 +112,22 @@ public class AdminMenu {
                 case "2":
                     return RoomType.DOUBLE;
                 default:
-                    //System.out.println("Please enter 1 or 2 to select room type.");
-                    return addRoomType(scanner);
+                    System.out.println("Please enter 1 or 2 to select room type.");
+                    return addRoomType();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return addRoomType(scanner);
+            return addRoomType();
         }
     }
 
-    private static double addRoomPrice(Scanner scanner) {
+    private static double addRoomPrice() {
         try {
             return scanner.nextDouble();
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please add a valid room price.");
             scanner.nextLine();
-            return addRoomPrice(scanner);
+            return addRoomPrice();
         }
     }
 
